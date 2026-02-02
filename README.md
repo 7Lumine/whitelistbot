@@ -1,6 +1,6 @@
 # Discord Whitelist Plugin
 
-Minecraft Java版 Paper/Spigot 1.21.1対応のホワイトリスト管理プラグインです。
+Minecraft Java版 Paper/Spigot 1.21.x対応のホワイトリスト管理プラグインです。
 Discordサーバーのメンバーが自分でホワイトリストに登録できます。
 
 ## 機能
