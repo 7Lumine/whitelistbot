@@ -1,0 +1,20 @@
+name: DiscordWhitelist
+version: '1.0.0'
+main: com.example.discordwhitelist.DiscordWhitelistPlugin
+api-version: '1.21'
+author: DiscordWhitelist
+description: Discord連携ホワイトリストプラグイン
+
+commands:
+  dwl:
+    description: Discord Whitelist 管理コマンド
+    usage: /<command> <reload|add|remove|list>
+    permission: discordwhitelist.admin
+
+permissions:
+  discordwhitelist.admin:
+    description: 管理者権限
+    default: op
+  discordwhitelist.bypass:
+    description: ホワイトリストをバイパス
+    default: op
