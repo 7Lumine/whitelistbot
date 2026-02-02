@@ -4,6 +4,7 @@ import com.example.discordwhitelist.DiscordWhitelistPlugin;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -18,6 +19,7 @@ public class DiscordBot {
 
     private final DiscordWhitelistPlugin plugin;
     private JDA jda;
+    private TextChannel chatChannel;
 
     public DiscordBot(DiscordWhitelistPlugin plugin) {
         this.plugin = plugin;
@@ -36,7 +38,8 @@ public class DiscordBot {
                     .addEventListeners(
                             new SlashCommandListener(plugin),
                             new ButtonListener(plugin),
-                            new ModalListener(plugin))
+                            new ModalListener(plugin),
+                            new DiscordChatListener(plugin))
                     .build();
 
             jda.awaitReady();
@@ -44,10 +47,31 @@ public class DiscordBot {
             // スラッシュコマンドの登録
             registerCommands();
 
+            // チャット同期チャンネルの取得
+            initChatChannel();
+
             plugin.getLogger().info("Discord Botが起動しました: " + jda.getSelfUser().getName());
+
+            // サーバー起動通知
+            sendServerStartMessage();
 
         } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Discord Botの起動に失敗しました", e);
+        }
+    }
+
+    /**
+     * チャット同期チャンネルを初期化
+     */
+    private void initChatChannel() {
+        String channelId = plugin.getConfig().getString("chat-sync.channel-id", "");
+        if (!channelId.isEmpty() && !channelId.equals("YOUR_CHAT_CHANNEL_ID")) {
+            chatChannel = jda.getTextChannelById(channelId);
+            if (chatChannel != null) {
+                plugin.getLogger().info("チャット同期チャンネル: #" + chatChannel.getName());
+            } else {
+                plugin.getLogger().warning("チャット同期チャンネルが見つかりません: " + channelId);
+            }
         }
     }
 
@@ -87,10 +111,56 @@ public class DiscordBot {
     }
 
     /**
+     * サーバー起動メッセージを送信
+     */
+    private void sendServerStartMessage() {
+        if (!plugin.getConfig().getBoolean("chat-sync.enabled", false))
+            return;
+        if (!plugin.getConfig().getBoolean("chat-sync.server-status-messages", true))
+            return;
+
+        String message = plugin.getConfig().getString("chat-sync.formats.server-start", "🟢 **サーバーが起動しました**");
+        sendChatMessage(message);
+    }
+
+    /**
+     * サーバー停止メッセージを送信
+     */
+    public void sendServerStopMessage() {
+        if (!plugin.getConfig().getBoolean("chat-sync.enabled", false))
+            return;
+        if (!plugin.getConfig().getBoolean("chat-sync.server-status-messages", true))
+            return;
+
+        String message = plugin.getConfig().getString("chat-sync.formats.server-stop", "🔴 **サーバーが停止しました**");
+
+        if (chatChannel != null) {
+            try {
+                // 同期的に送信（シャットダウン時）
+                chatChannel.sendMessage(message).complete();
+            } catch (Exception e) {
+                plugin.getLogger().warning("サーバー停止メッセージの送信に失敗: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * チャットメッセージをDiscordに送信
+     */
+    public void sendChatMessage(String message) {
+        if (chatChannel != null) {
+            chatChannel.sendMessage(message).queue();
+        }
+    }
+
+    /**
      * Botを停止
      */
     public void shutdown() {
         if (jda != null) {
+            // サーバー停止通知
+            sendServerStopMessage();
+
             jda.shutdown();
             plugin.getLogger().info("Discord Botを停止しました。");
         }

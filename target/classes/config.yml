@@ -15,6 +15,38 @@ bedrock:
   # Floodgateのプレフィックス (通常は ".")
   prefix: "."
 
+# チャット同期設定
+chat-sync:
+  # 有効/無効
+  enabled: true
+  
+  # チャット同期用チャンネルID
+  channel-id: "YOUR_CHAT_CHANNEL_ID"
+  
+  # Minecraft → Discord
+  minecraft-to-discord: true
+  
+  # Discord → Minecraft
+  discord-to-minecraft: true
+  
+  # プレイヤー参加/退出通知
+  join-leave-messages: true
+  
+  # サーバー起動/停止通知
+  server-status-messages: true
+  
+  # メッセージフォーマット
+  formats:
+    # Minecraft → Discord
+    chat-to-discord: "**%player%**: %message%"
+    join-to-discord: "📥 **%player%** がサーバーに参加しました"
+    leave-to-discord: "📤 **%player%** がサーバーから退出しました"
+    server-start: "🟢 **サーバーが起動しました**"
+    server-stop: "🔴 **サーバーが停止しました**"
+    
+    # Discord → Minecraft
+    chat-to-minecraft: "§9[Discord]§r §b%user%§r: %message%"
+
 messages:
   # サーバー参加拒否時のメッセージ (Minecraft)
   not-whitelisted: |

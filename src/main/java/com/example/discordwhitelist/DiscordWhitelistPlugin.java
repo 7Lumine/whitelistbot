@@ -2,6 +2,7 @@ package com.example.discordwhitelist;
 
 import com.example.discordwhitelist.command.AdminCommand;
 import com.example.discordwhitelist.discord.DiscordBot;
+import com.example.discordwhitelist.listener.ChatSyncListener;
 import com.example.discordwhitelist.listener.PlayerLoginListener;
 import com.example.discordwhitelist.manager.WhitelistManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -38,6 +39,7 @@ public class DiscordWhitelistPlugin extends JavaPlugin {
 
         // イベントリスナーの登録
         getServer().getPluginManager().registerEvents(new PlayerLoginListener(this), this);
+        getServer().getPluginManager().registerEvents(new ChatSyncListener(this), this);
 
         // コマンドの登録
         AdminCommand adminCommand = new AdminCommand(this);

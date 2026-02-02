@@ -1,8 +1,10 @@
+com\example\discordwhitelist\discord\DiscordChatListener.class
 com\example\discordwhitelist\listener\PlayerLoginListener.class
 com\example\discordwhitelist\command\AdminCommand$1.class
 com\example\discordwhitelist\discord\DiscordBot.class
 com\example\discordwhitelist\discord\ModalListener$1.class
 com\example\discordwhitelist\discord\SlashCommandListener$1.class
+com\example\discordwhitelist\listener\ChatSyncListener.class
 com\example\discordwhitelist\discord\ModalListener.class
 com\example\discordwhitelist\command\AdminCommand.class
 com\example\discordwhitelist\discord\ButtonListener.class
