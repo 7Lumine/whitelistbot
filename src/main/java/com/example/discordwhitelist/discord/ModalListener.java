@@ -23,10 +23,10 @@ public class ModalListener extends ListenerAdapter {
     @Override
     public void onModalInteraction(@NotNull ModalInteractionEvent event) {
         String modalId = event.getModalId();
-        
+
         boolean isJava = modalId.equals(WHITELIST_MODAL_JAVA);
         boolean isBedrock = modalId.equals(WHITELIST_MODAL_BEDROCK);
-        
+
         if (!isJava && !isBedrock) {
             return;
         }
@@ -34,27 +34,53 @@ public class ModalListener extends ListenerAdapter {
         String mcid = event.getValue("mcid").getAsString().trim();
         String discordId = event.getUser().getId();
 
-        // ホワイトリストに追加
-        WhitelistManager.AddResult result = plugin.getWhitelistManager().addPlayer(mcid, discordId, isBedrock);
+        // 既存の登録があるかチェック
+        String existingPlayer = isJava
+                ? plugin.getWhitelistManager().getJavaPlayerByDiscordId(discordId)
+                : plugin.getWhitelistManager().getBedrockPlayerByDiscordId(discordId);
+
+        WhitelistManager.AddResult result;
+        if (existingPlayer != null) {
+            // 修正モード
+            result = plugin.getWhitelistManager().updatePlayer(mcid, discordId, isBedrock);
+        } else {
+            // 新規登録モード
+            result = plugin.getWhitelistManager().addPlayer(mcid, discordId, isBedrock);
+        }
 
         String message;
         switch (result) {
             case SUCCESS -> {
                 if (isJava) {
                     message = plugin.getConfig().getString("messages.success-java",
-                                    "✅ **%player%** をホワイトリストに登録しました！Java版でサーバーに参加できます。")
+                            "✅ **%player%** をホワイトリストに登録しました！Java版でサーバーに参加できます。")
                             .replace("%player%", mcid);
                 } else {
                     String prefix = plugin.getConfig().getString("bedrock.prefix", ".");
                     message = plugin.getConfig().getString("messages.success-bedrock",
-                                    "✅ **%player%** をホワイトリストに登録しました！統合版でサーバーに参加できます。")
+                            "✅ **%player%** をホワイトリストに登録しました！統合版でサーバーに参加できます。")
                             .replace("%player%", prefix + mcid);
                 }
-                plugin.getLogger().info("ホワイトリストに追加: " + mcid + " (Discord: " + discordId + ", Bedrock: " + isBedrock + ")");
+                plugin.getLogger()
+                        .info("ホワイトリストに追加: " + mcid + " (Discord: " + discordId + ", Bedrock: " + isBedrock + ")");
+            }
+            case UPDATED -> {
+                if (isJava) {
+                    message = plugin.getConfig().getString("messages.updated-java",
+                            "✅ Minecraft IDを **%player%** に変更しました！")
+                            .replace("%player%", mcid);
+                } else {
+                    String prefix = plugin.getConfig().getString("bedrock.prefix", ".");
+                    message = plugin.getConfig().getString("messages.updated-bedrock",
+                            "✅ ゲーマータグを **%player%** に変更しました！")
+                            .replace("%player%", prefix + mcid);
+                }
+                plugin.getLogger()
+                        .info("ホワイトリストを更新: " + mcid + " (Discord: " + discordId + ", Bedrock: " + isBedrock + ")");
             }
             case ALREADY_EXISTS -> {
-                message = plugin.getConfig().getString("messages.admin-already-exists",
-                                "⚠️ **%player%** は既にホワイトリストに登録されています。")
+                message = plugin.getConfig().getString("messages.name-already-taken",
+                        "⚠️ **%player%** は既に他のユーザーが使用しています。")
                         .replace("%player%", mcid);
             }
             case INVALID_NAME -> {
@@ -67,15 +93,8 @@ public class ModalListener extends ListenerAdapter {
                 }
             }
             case DISCORD_ALREADY_REGISTERED -> {
-                String existingPlayer;
-                if (isJava) {
-                    existingPlayer = plugin.getWhitelistManager().getJavaPlayerByDiscordId(discordId);
-                } else {
-                    existingPlayer = plugin.getWhitelistManager().getBedrockPlayerByDiscordId(discordId);
-                }
-                message = plugin.getConfig().getString("messages.already-registered",
-                                "⚠️ あなたは既にホワイトリストに登録されています。\n登録名: **%player%**")
-                        .replace("%player%", existingPlayer != null ? existingPlayer : "不明");
+                // This case shouldn't happen now since we check and use updatePlayer
+                message = "❌ エラーが発生しました。";
             }
             default -> {
                 message = "❌ エラーが発生しました。";

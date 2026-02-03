@@ -25,7 +25,7 @@ public class WhitelistManager {
 
     // Discord ID -> Minecraft名 (Java版)
     private final Map<String, String> discordToJava = new HashMap<>();
-    
+
     // Discord ID -> Minecraft名 (Bedrock版)
     private final Map<String, String> discordToBedrock = new HashMap<>();
 
@@ -159,7 +159,8 @@ public class WhitelistManager {
 
         // 登録
         String registeredAt = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        WhitelistEntry entry = new WhitelistEntry(storedName, discordId != null ? discordId : "", registeredAt, isBedrock);
+        WhitelistEntry entry = new WhitelistEntry(storedName, discordId != null ? discordId : "", registeredAt,
+                isBedrock);
         whitelist.put(lowerName, entry);
 
         if (discordId != null && !discordId.isEmpty()) {
@@ -172,6 +173,66 @@ public class WhitelistManager {
 
         save();
         return AddResult.SUCCESS;
+    }
+
+    /**
+     * プレイヤーのMinecraft IDを更新
+     *
+     * @param newPlayerName 新しいMinecraft ID
+     * @param discordId     Discord ID
+     * @param isBedrock     Bedrock版かどうか
+     * @return 更新結果
+     */
+    public AddResult updatePlayer(String newPlayerName, String discordId, boolean isBedrock) {
+        // Minecraft名のバリデーション
+        if (isBedrock) {
+            if (!isValidBedrockName(newPlayerName)) {
+                return AddResult.INVALID_NAME;
+            }
+        } else {
+            if (!isValidJavaName(newPlayerName)) {
+                return AddResult.INVALID_NAME;
+            }
+        }
+
+        // 古いエントリーを取得して削除
+        String oldPlayerName = isBedrock ? discordToBedrock.get(discordId) : discordToJava.get(discordId);
+        if (oldPlayerName != null) {
+            whitelist.remove(oldPlayerName.toLowerCase());
+            if (isBedrock) {
+                discordToBedrock.remove(discordId);
+            } else {
+                discordToJava.remove(discordId);
+            }
+        }
+
+        // Bedrock版の場合、プレフィックスを付けて保存
+        String storedName = newPlayerName;
+        if (isBedrock) {
+            String prefix = plugin.getConfig().getString("bedrock.prefix", ".");
+            storedName = prefix + newPlayerName;
+        }
+
+        String lowerName = storedName.toLowerCase();
+
+        // 新しい名前が既に使用されているかチェック
+        if (whitelist.containsKey(lowerName)) {
+            return AddResult.ALREADY_EXISTS;
+        }
+
+        // 登録
+        String registeredAt = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        WhitelistEntry entry = new WhitelistEntry(storedName, discordId, registeredAt, isBedrock);
+        whitelist.put(lowerName, entry);
+
+        if (isBedrock) {
+            discordToBedrock.put(discordId, storedName);
+        } else {
+            discordToJava.put(discordId, storedName);
+        }
+
+        save();
+        return AddResult.UPDATED;
     }
 
     /**
@@ -226,12 +287,14 @@ public class WhitelistManager {
 
     /**
      * Discord IDでプレイヤー名を取得 (Java版優先)
+     * 
      * @deprecated Use getJavaPlayerByDiscordId or getBedrockPlayerByDiscordId
      */
     @Deprecated
     public String getPlayerByDiscordId(String discordId) {
         String java = discordToJava.get(discordId);
-        if (java != null) return java;
+        if (java != null)
+            return java;
         return discordToBedrock.get(discordId);
     }
 
@@ -278,6 +341,7 @@ public class WhitelistManager {
      */
     public enum AddResult {
         SUCCESS,
+        UPDATED,
         ALREADY_EXISTS,
         INVALID_NAME,
         DISCORD_ALREADY_REGISTERED

@@ -27,7 +27,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) {
+            @NotNull String label, @NotNull String[] args) {
 
         if (args.length == 0) {
             sendHelp(sender);
@@ -50,9 +50,11 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                 WhitelistManager.AddResult result = plugin.getWhitelistManager().addPlayer(playerName, null);
                 switch (result) {
                     case SUCCESS -> sender.sendMessage("§a" + playerName + " をホワイトリストに追加しました。");
+                    case UPDATED -> sender.sendMessage("§a" + playerName + " のホワイトリストを更新しました。");
                     case ALREADY_EXISTS -> sender.sendMessage("§e" + playerName + " は既にホワイトリストに登録されています。");
                     case INVALID_NAME -> sender.sendMessage("§c無効なMinecraft IDです。");
-                    case DISCORD_ALREADY_REGISTERED -> sender.sendMessage("§cこのDiscordアカウントは既に別のMinecraft IDで登録されています。");
+                    case DISCORD_ALREADY_REGISTERED ->
+                        sender.sendMessage("§cこのDiscordアカウントは既に別のMinecraft IDで登録されています。");
                 }
             }
             case "remove" -> {
@@ -71,7 +73,8 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                 List<WhitelistManager.WhitelistEntry> entries = plugin.getWhitelistManager().getWhitelist();
                 sender.sendMessage("§6===== ホワイトリスト (" + entries.size() + "人) =====");
                 for (WhitelistManager.WhitelistEntry entry : entries) {
-                    String discordInfo = entry.getDiscordId().isEmpty() ? "" : " §7(Discord: " + entry.getDiscordId() + ")";
+                    String discordInfo = entry.getDiscordId().isEmpty() ? ""
+                            : " §7(Discord: " + entry.getDiscordId() + ")";
                     sender.sendMessage("§f- " + entry.getPlayerName() + discordInfo);
                 }
             }
@@ -91,7 +94,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                                @NotNull String alias, @NotNull String[] args) {
+            @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
             return Arrays.asList("reload", "add", "remove", "list").stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
