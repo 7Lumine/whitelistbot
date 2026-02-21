@@ -59,13 +59,7 @@ public class DiscordBot {
             initChatChannel();
 
             // Webhook URLの取得
-            webhookUrl = plugin.getConfig().getString("chat-sync.webhook-url", "");
-            if (webhookUrl.isEmpty() || webhookUrl.equals("YOUR_WEBHOOK_URL")) {
-                webhookUrl = null;
-                plugin.getLogger().info("Webhook URLが未設定です。通常のBotメッセージで送信します。");
-            } else {
-                plugin.getLogger().info("Webhook URLが設定されています。プレイヤーアバター付きで送信します。");
-            }
+            reloadWebhook();
 
             plugin.getLogger().info("Discord Botが起動しました: " + jda.getSelfUser().getName());
 
@@ -93,6 +87,20 @@ public class DiscordBot {
                 plugin.getLogger().warning("チャット同期チャンネルが見つかりません: " + channelId);
             }
         }
+    }
+
+    /**
+     * Webhook URLをリロード
+     */
+    public void reloadWebhook() {
+        webhookUrl = plugin.getConfig().getString("chat-sync.webhook-url", "");
+        if (webhookUrl.isEmpty() || webhookUrl.equals("YOUR_WEBHOOK_URL")) {
+            webhookUrl = null;
+            plugin.getLogger().info("Webhook URLが未設定です。通常のBotメッセージで送信します。");
+        } else {
+            plugin.getLogger().info("Webhook URLが設定されています。プレイヤーアバター付きで送信します。");
+        }
+        initChatChannel();
     }
 
     /**

@@ -91,6 +91,9 @@ public class DiscordWhitelistPlugin extends JavaPlugin {
     public void reload() {
         reloadConfig();
         whitelistManager.reload();
+        if (discordBot != null) {
+            discordBot.reloadWebhook();
+        }
         getLogger().info("設定をリロードしました。");
     }
 }
