@@ -23,6 +23,11 @@ chat-sync:
   # チャット同期用チャンネルID
   channel-id: "YOUR_CHAT_CHANNEL_ID"
   
+  # Webhook URL (チャット同期チャンネルでWebhookを作成し、URLを設定)
+  # 設定するとプレイヤーのスキンアイコン付きでチャットが表示されます
+  # チャンネル設定 → 連携サービス → Webhookから作成できます
+  webhook-url: "YOUR_WEBHOOK_URL"
+  
   # Minecraft → Discord
   minecraft-to-discord: true
   
@@ -35,12 +40,20 @@ chat-sync:
   # サーバー起動/停止通知
   server-status-messages: true
   
+  # デスメッセージ通知
+  death-messages: true
+  
+  # 実績解除通知
+  advancement-messages: true
+  
   # メッセージフォーマット
   formats:
-    # Minecraft → Discord
+    # Minecraft → Discord (Webhook使用時はプレイヤー名とアバターは自動設定)
     chat-to-discord: "**%player%**: %message%"
     join-to-discord: "📥 **%player%** がサーバーに参加しました"
     leave-to-discord: "📤 **%player%** がサーバーから退出しました"
+    death-to-discord: "💀 %message%"
+    advancement-to-discord: "🏆 **%player%** が実績 **%advancement%** を達成しました！"
     server-start: "🟢 **サーバーが起動しました**"
     server-stop: "🔴 **サーバーが停止しました**"
     
@@ -61,7 +74,9 @@ messages:
   
   # Modal設定 (Discord)
   modal-title-java: "ホワイトリスト登録 (Java版)"
+  modal-title-java-edit: "ホワイトリスト修正 (Java版)"
   modal-title-bedrock: "ホワイトリスト登録 (統合版)"
+  modal-title-bedrock-edit: "ホワイトリスト修正 (統合版)"
   modal-input-label-java: "Minecraft ID (Java版)"
   modal-input-label-bedrock: "ゲーマータグ (Xbox/統合版)"
   modal-input-placeholder-java: "例: Steve"
@@ -70,7 +85,10 @@ messages:
   # 登録結果メッセージ (Discord)
   success-java: "✅ **%player%** をホワイトリストに登録しました！Java版でサーバーに参加できます。"
   success-bedrock: "✅ **%player%** をホワイトリストに登録しました！統合版でサーバーに参加できます。"
+  updated-java: "✅ Minecraft IDを **%player%** に変更しました！"
+  updated-bedrock: "✅ ゲーマータグを **%player%** に変更しました！"
   already-registered: "⚠️ あなたは既にホワイトリストに登録されています。\n登録名: **%player%**"
+  name-already-taken: "⚠️ **%player%** は既に他のユーザーが使用しています。"
   invalid-name-java: "❌ 無効なMinecraft IDです。正しいIDを入力してください。(英数字と_のみ、3-16文字)"
   invalid-name-bedrock: "❌ 無効なゲーマータグです。正しいタグを入力してください。(英数字とスペースのみ、3-16文字)"
   
