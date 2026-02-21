@@ -57,6 +57,9 @@ public class ChatSyncListener implements Listener {
                 .replace("%player%", escapeMarkdown(playerName));
 
         plugin.getDiscordBot().sendChatMessage(format);
+
+        // ステータスのプレイヤー人数を更新
+        plugin.getDiscordBot().updatePlayerCount();
     }
 
     /**
@@ -76,6 +79,9 @@ public class ChatSyncListener implements Listener {
                 .replace("%player%", escapeMarkdown(playerName));
 
         plugin.getDiscordBot().sendChatMessage(format);
+
+        // ステータスのプレイヤー人数を更新
+        plugin.getDiscordBot().updatePlayerCount();
     }
 
     /**

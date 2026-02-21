@@ -69,6 +69,9 @@ public class DiscordBot {
 
             plugin.getLogger().info("Discord Botが起動しました: " + jda.getSelfUser().getName());
 
+            // プレイヤー人数を表示
+            updatePlayerCount();
+
             // サーバー起動通知
             sendServerStartMessage();
 
@@ -290,6 +293,20 @@ public class DiscordBot {
      */
     public JDA getJDA() {
         return jda;
+    }
+
+    /**
+     * プレイヤー人数をBotステータスに表示
+     */
+    public void updatePlayerCount() {
+        if (jda == null)
+            return;
+        int count = plugin.getServer().getOnlinePlayers().size();
+        int max = plugin.getServer().getMaxPlayers();
+        String status = plugin.getConfig().getString("chat-sync.formats.bot-status", "Minecraft | %online%/%max%人")
+                .replace("%online%", String.valueOf(count))
+                .replace("%max%", String.valueOf(max));
+        jda.getPresence().setActivity(Activity.playing(status));
     }
 
     /**

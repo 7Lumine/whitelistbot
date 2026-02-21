@@ -48,6 +48,8 @@ chat-sync:
   
   # メッセージフォーマット
   formats:
+    # Botのステータスに表示する文字列
+    bot-status: "Minecraft | %online%/%max%人"
     # Minecraft → Discord (Webhook使用時はプレイヤー名とアバターは自動設定)
     chat-to-discord: "**%player%**: %message%"
     join-to-discord: "📥 **%player%** がサーバーに参加しました"
