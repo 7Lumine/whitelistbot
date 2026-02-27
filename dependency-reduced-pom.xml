@@ -4,7 +4,7 @@
   <groupId>com.example</groupId>
   <artifactId>discord-whitelist</artifactId>
   <name>DiscordWhitelist</name>
-  <version>1.0.3</version>
+  <version>1.0.4</version>
   <description>Discord連携ホワイトリストプラグイン</description>
   <build>
     <resources>

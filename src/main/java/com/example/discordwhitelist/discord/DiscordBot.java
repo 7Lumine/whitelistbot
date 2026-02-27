@@ -292,6 +292,17 @@ public class DiscordBot {
         if (jda != null) {
             sendServerStopMessage();
             jda.shutdown();
+            try {
+                // JDAの全スレッドが終了するまで最大10秒待機
+                if (!jda.awaitShutdown(java.time.Duration.ofSeconds(10))) {
+                    plugin.getLogger().warning("JDAのシャットダウンがタイムアウトしました。強制停止します。");
+                    jda.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                plugin.getLogger().warning("JDAのシャットダウン待機が中断されました。");
+                jda.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
             plugin.getLogger().info("Discord Botを停止しました。");
         }
     }
